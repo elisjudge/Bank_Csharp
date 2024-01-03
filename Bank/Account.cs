@@ -21,16 +21,24 @@ public class Account
         get { return _balance; }
     }
 
-    public void Deposit(decimal amountToAdd)
+    public bool Deposit(decimal amountToAdd)
     {
-        Console.WriteLine($"Depositing ${amountToAdd}");
-        _balance = _balance + amountToAdd;
+        if (amountToAdd > 0)
+        {
+            _balance += amountToAdd; 
+            return true; 
+        }
+        return false;
     }
 
-    public void Withdraw(decimal amountToSubtract)
+    public bool Withdraw(decimal amountToSubtract)
     {
-        Console.WriteLine($"Withdrawing ${amountToSubtract}");
-        _balance = _balance - amountToSubtract;
+        if (amountToSubtract <= _balance && amountToSubtract > 0)
+        {
+            _balance -= amountToSubtract;
+            return true;
+        }
+        return false;
     }
 
     public void Print()
