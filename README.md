@@ -9,8 +9,8 @@ This program is a modified version of a banking application that I wrote as part
 
 ## Installation
 
-1. Clone this repository: `git clone https://github.com/yourusername/your-repo.git`
-2. Navigate to the project folder: `cd your-repo`
+1. Clone this repository: `git clone (PROJECT URL GOES HERE)`
+2. Navigate to the project folder: `cd your-folder`
 3. Run the application: `dotnet run`
 
 ## Version History & Usage
