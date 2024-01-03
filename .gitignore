@@ -1,0 +1,9 @@
+# Ignore Visual Studio files
+.vscode/
+.vs/
+obj/
+bin/
+
+# Ignore build artifacts
+*.dll
+*.pdb
