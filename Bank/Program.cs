@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace version_1_0
+namespace version_2_0
 {
     public class Program 
     {
