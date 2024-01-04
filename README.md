@@ -14,5 +14,7 @@ This program is a modified version of a banking application that I wrote as part
 3. Run the application: `dotnet run`
 
 ## Version History & Usage
+You can go back and review the code to see how the program changes over each iteration.
 
+- Version 2.0: Added a basic terminal UI and simple validation rules for deposits and withdrawals.
 - Version 1.0: Creates an Account, performs deposit and withdraw functions and prints balance to the terminal.
