@@ -3,7 +3,7 @@
 .vs/
 obj/
 bin/
-.sln
+*.sln
 
 # Ignore build artifacts
 *.dll
