@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace version_3_0
+namespace version_4_0
 {
     public class Program 
     {
         public static void Main()
         {
+            Bank bank = new Bank();
             MenuOption userSelection;
-            Account account_0001 = new("John", 100);
-            Account account_0002 = new("Mike", 100);
 
             do
             {
@@ -16,18 +15,20 @@ namespace version_3_0
 
                 switch(userSelection)
                 {
+                    case MenuOption.Add_Account:
+                        DoAddAccount(bank);
+                        break;
                     case MenuOption.Deposit:
-                        DoDeposit(account_0001);
+                        DoDeposit(bank);
                         break;
                     case MenuOption.Withdraw:
-                        DoWithdraw(account_0001);
+                        DoWithdraw(bank);
                         break;
                     case MenuOption.Transfer:
-                        DoTransfer(account_0001, account_0002);
+                        DoTransfer(bank);
                         break;
                     case MenuOption.Print:
-                        DoPrint(account_0001);
-                        DoPrint(account_0002);
+                        DoPrint(bank);
                         break;
                     case MenuOption.Quit:
                         Console.WriteLine("Quit");
@@ -40,15 +41,16 @@ namespace version_3_0
         {
             int option;
             Console.WriteLine(@"Type one of the following options:
-            1. Deposit Funds,
-            2. Withdraw Funds,
-            3. Transfer Funds,
-            4. Show Account Balance,
-            5. Quit");
+            1. Add Account,
+            2. Deposit Funds,
+            3. Withdraw Funds,
+            4. Transfer Funds,
+            5. Show Account Balance,
+            6. Quit");
 
             do
             {
-                Console.Write("Choose an option [1-5]:");
+                Console.Write("Choose an option [1-6]:");
                 try
                 {
                     option = Convert.ToInt32(Console.ReadLine());
@@ -59,25 +61,86 @@ namespace version_3_0
                     Console.WriteLine("Please make sure that you select a valid option");
                     option = -1;
                 }
-                if (option < 1 || option > 5)
+                if (option < 1 || option > 6)
                 {
-                    Console.WriteLine("Please select a valid number between 1 and 5.");
+                    Console.WriteLine("Please select a valid number between 1 and 6.");
                 }
-            } while (option < 1 || option > 5);
+            } while (option < 1 || option > 6);
 
             return (MenuOption)(option - 1);
         }
 
-        public static void DoDeposit(Account account)
+        private static Account? FindAccount(Bank fromBank)
         {
-            decimal depositAmount;
-            Console.Write("Please enter the amount you wish to deposit: ");
+            string? _name;
+            do
+            {
+                Console.Write("Enter account name: ");
+                _name = Console.ReadLine();
+            }
+            while (string.IsNullOrEmpty(_name));
+
+            Account? result = fromBank.GetAccount(_name);
+            if (result == null)
+            {
+                Console.WriteLine($"No account found with {_name}.");
+            }
+            return result;
+        }
+
+        private static void DoAddAccount(Bank toBank)
+        {
+            string? _accountName;
+            do
+            {
+                Console.Write("Please enter the account name: ");
+                _accountName = Console.ReadLine();
+            }
+            while (string.IsNullOrEmpty(_accountName));
+
+            while (true)
+            {
+                try
+                {
+                    Console.Write("Please enter the opening balance: ");
+                    decimal openingBalance;
+                    openingBalance = Convert.ToDecimal(Console.ReadLine());
+
+                    if (openingBalance < 0)
+                    {
+                        throw new Exception($"Account balance cannot be negative number.");
+                    }
+                    toBank.AddAccount(new Account(_accountName, openingBalance));
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+            }
+        }
+
+        private static void DoDeposit(Bank bank)
+        {
+            Account? account = FindAccount(bank);
+            if (account == null)
+            {
+                return;
+            }
+
+            decimal _depositAmount;
+            Console.Write($"Please enter the amount you wish to deposit into {account.Name}: ");
             try
             {
-                depositAmount = Convert.ToDecimal(Console.ReadLine());
-                DepositTransaction transaction = new(account, depositAmount);
-                transaction.Execute();
-                transaction.Print();
+                _depositAmount = Convert.ToDecimal(Console.ReadLine());
+                DepositTransaction depositTransaction = new(account, _depositAmount);
+                bank.ExecuteTransaction(depositTransaction);
+                if (!depositTransaction.Succeeded)
+                {
+                    throw new Exception("Deposit was not successful.");
+                }
+                depositTransaction.Print();
             }
             catch (Exception ex)
             {
@@ -85,16 +148,26 @@ namespace version_3_0
             }
         }
 
-        public static void DoWithdraw(Account account)
+        private static void DoWithdraw(Bank bank)
         {
-            decimal withdrawAmount;
-            Console.Write("Please enter the amount you wish to withdraw: ");
+            Account? account = FindAccount(bank);
+            if (account == null)
+            {
+                return;
+            }
+            
+            decimal _withdrawAmount;
+            Console.Write($"Please enter the amount you wish to withdraw from {account.Name}: ");
             try
             {
-                withdrawAmount = Convert.ToDecimal(Console.ReadLine());
-                WithdrawTransaction transaction = new(account, withdrawAmount);
-                transaction.Execute();
-                transaction.Print();
+                _withdrawAmount = Convert.ToDecimal(Console.ReadLine());
+                WithdrawTransaction withdrawTransaction = new(account, _withdrawAmount);
+                bank.ExecuteTransaction(withdrawTransaction);
+                if (!withdrawTransaction.Succeeded)
+                {
+                    throw new Exception("Withdraw was not successful.");
+                }
+                withdrawTransaction.Print();
             }
             catch (Exception ex)
             {
@@ -102,16 +175,43 @@ namespace version_3_0
             }
         }
 
-        public static void DoTransfer(Account fromAccount, Account toAccount)
+        private static void DoTransfer(Bank bank)
         {
-            decimal transferAmount;
-            Console.Write($"What amount will you be transferring to {toAccount.Name}?: ");
             try
             {
-                transferAmount = Convert.ToDecimal(Console.ReadLine());
-                TransferTransaction transaction = new(fromAccount, toAccount, transferAmount);
-                transaction.Execute();
-                transaction.Print();                
+                Account? fromAccount = FindAccount(bank);
+                if (fromAccount == null)
+                {
+                    return;
+                }
+
+                Account? toAccount = FindAccount(bank);
+                if (toAccount == null)
+                {
+                    return;
+                }
+
+                if (fromAccount == toAccount)
+                {
+                    throw new Exception("You cannot transfer between the same");
+                }
+                decimal _transferAmount;
+                Console.Write($"What amount will be transferred from {fromAccount.Name} to {toAccount.Name}?: ");
+                try
+                {
+                    _transferAmount = Convert.ToDecimal(Console.ReadLine());
+                    TransferTransaction transferTransaction = new(fromAccount, toAccount, _transferAmount);
+                    bank.ExecuteTransaction(transferTransaction);
+                    if (!transferTransaction.Succeeded)
+                    {
+                        throw new Exception("Transfer was not successful.");
+                    }
+                    transferTransaction.Print();              
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
             catch (Exception ex)
             {
@@ -119,13 +219,20 @@ namespace version_3_0
             }
         }
 
-        public static void DoPrint(Account account)
+        private static void DoPrint(Bank bank)
         {
+            Account? account = FindAccount(bank);
+            if (account == null)
+            {
+                return;
+            }
+
             account.Print();
         }
 
         public enum MenuOption
         {
+            Add_Account,
             Deposit,
             Withdraw,
             Transfer,
