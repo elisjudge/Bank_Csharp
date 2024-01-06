@@ -1,13 +1,14 @@
 ﻿using System;
 
-namespace version_2_0
+namespace version_3_0
 {
     public class Program 
     {
         public static void Main()
         {
             MenuOption userSelection;
-            Account account = new Account("John", 100);
+            Account account_0001 = new("John", 100);
+            Account account_0002 = new("Mike", 100);
 
             do
             {
@@ -16,13 +17,17 @@ namespace version_2_0
                 switch(userSelection)
                 {
                     case MenuOption.Deposit:
-                        DoDeposit(account);
+                        DoDeposit(account_0001);
                         break;
                     case MenuOption.Withdraw:
-                        DoWithdraw(account);
+                        DoWithdraw(account_0001);
+                        break;
+                    case MenuOption.Transfer:
+                        DoTransfer(account_0001, account_0002);
                         break;
                     case MenuOption.Print:
-                        DoPrint(account);
+                        DoPrint(account_0001);
+                        DoPrint(account_0002);
                         break;
                     case MenuOption.Quit:
                         Console.WriteLine("Quit");
@@ -33,92 +38,84 @@ namespace version_2_0
 
         public static MenuOption ReadUserOption()
         {
-            int option = 0;
+            int option;
             Console.WriteLine(@"Type one of the following options:
             1. Deposit Funds,
             2. Withdraw Funds,
-            3. Show Account Balance,
-            4. Quit");
+            3. Transfer Funds,
+            4. Show Account Balance,
+            5. Quit");
 
             do
             {
-                Console.Write("Choose an option [1-4]:");
+                Console.Write("Choose an option [1-5]:");
                 try
                 {
                     option = Convert.ToInt32(Console.ReadLine());
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine("Exception: " + ex.Message);
                     Console.WriteLine("Please make sure that you select a valid option");
+                    option = -1;
                 }
-            } while (option < 1 || option > 4);
+                if (option < 1 || option > 5)
+                {
+                    Console.WriteLine("Please select a valid number between 1 and 5.");
+                }
+            } while (option < 1 || option > 5);
 
             return (MenuOption)(option - 1);
         }
 
         public static void DoDeposit(Account account)
         {
-            decimal depositAmount = 0;
-            bool depositSuccess = false;
-
-            do
+            decimal depositAmount;
+            Console.Write("Please enter the amount you wish to deposit: ");
+            try
             {
-                Console.Write("Please enter the amount that you wish to deposit: ");
-                try
-                {
-                    depositAmount = Convert.ToDecimal(Console.ReadLine());
-                    break;
-                }
-                catch
-                {
-                    Console.WriteLine("Please ensure that you are entering a valid deposit.");
-                }
-            } while (depositSuccess == false);
-
-            depositSuccess = account.Deposit(depositAmount);
-
-            if (depositSuccess == true)
-            {
-                Console.WriteLine("Deposit was successful.");
+                depositAmount = Convert.ToDecimal(Console.ReadLine());
+                DepositTransaction transaction = new(account, depositAmount);
+                transaction.Execute();
+                transaction.Print();
             }
-
-            if (depositSuccess == false)
+            catch (Exception ex)
             {
-                Console.WriteLine("Deposit was not successful. Please use non-negative values.");
+                Console.WriteLine(ex.Message);
             }
         }
 
         public static void DoWithdraw(Account account)
         {
-            decimal withdrawAmount = 0;
-            bool withdrawSuccess = false;
-
-            do
+            decimal withdrawAmount;
+            Console.Write("Please enter the amount you wish to withdraw: ");
+            try
             {
-                Console.Write("Please enter the amount you wish to withdraw: ");
-                try
-                {
-                    withdrawAmount = Convert.ToDecimal(Console.ReadLine());
-                    break;
-                }
-                catch
-                {
-                    Console.WriteLine("Please ensure that you are entering a valid withdrawal.");
-                }
-            } while (withdrawSuccess == false);
-
-            withdrawSuccess = account.Withdraw(withdrawAmount);
-
-            if (withdrawSuccess == true)
-            {
-                Console.WriteLine("Withdrawal was successful.");
+                withdrawAmount = Convert.ToDecimal(Console.ReadLine());
+                WithdrawTransaction transaction = new(account, withdrawAmount);
+                transaction.Execute();
+                transaction.Print();
             }
-
-            if (withdrawSuccess == false)
+            catch (Exception ex)
             {
-                Console.WriteLine("Withdraw was not successful.");
-                Console.WriteLine("Please use non-negative values.");
-                Console.WriteLine("Withdrawal cannot exceed account balance.");
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public static void DoTransfer(Account fromAccount, Account toAccount)
+        {
+            decimal transferAmount;
+            Console.Write($"What amount will you be transferring to {toAccount.Name}?: ");
+            try
+            {
+                transferAmount = Convert.ToDecimal(Console.ReadLine());
+                TransferTransaction transaction = new(fromAccount, toAccount, transferAmount);
+                transaction.Execute();
+                transaction.Print();                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -131,6 +128,7 @@ namespace version_2_0
         {
             Deposit,
             Withdraw,
+            Transfer,
             Print,
             Quit,
         }
