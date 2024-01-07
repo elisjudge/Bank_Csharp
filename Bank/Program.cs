@@ -193,7 +193,7 @@ namespace version_4_0
 
                 if (fromAccount == toAccount)
                 {
-                    throw new Exception("You cannot transfer between the same");
+                    throw new Exception("You cannot transfer between the same account.");
                 }
                 decimal _transferAmount;
                 Console.Write($"What amount will be transferred from {fromAccount.Name} to {toAccount.Name}?: ");
