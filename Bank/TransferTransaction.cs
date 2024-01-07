@@ -1,60 +1,33 @@
-public class TransferTransaction
+public class TransferTransaction : Transaction
 {
     private Account _fromAccount;
     private Account _toAccount;
-    private decimal _amount;
     private WithdrawTransaction _theWithdraw;
     private DepositTransaction _theDeposit;
-    private bool _executed;
-    private bool _reversed;
 
-    public bool Executed
-    {
-        get 
-        {
-            return _executed;
-        }
-    }
-
-    public bool Reversed 
-    {
-        get 
-        {
-            return _reversed;
-        }
-    }
-
-    public bool Succeeded
+    public override bool Succeeded
     {
         get 
         {
             if (_theWithdraw.Succeeded && _theDeposit.Succeeded)
-            {
-                return true;
-            }
+                return true;      
             else
-            {
                 return false;
-            }
         }
     }
 
-    public TransferTransaction(Account fromAccount, Account toAccount, decimal amount)
+    public TransferTransaction(Account fromAccount, Account toAccount, decimal amount) : base(amount)
     {
         _fromAccount = fromAccount;
         _toAccount = toAccount;
-        _amount = amount;
-
+        
         _theWithdraw = new WithdrawTransaction(_fromAccount, _amount);
         _theDeposit = new DepositTransaction(_toAccount, _amount);
     }
 
-    public void Execute()
+    public override void Execute()
     {
-        if (_executed)
-        {
-            throw new Exception("Transaction cannot be executed. It has aleady been executed.");
-        }
+        base.Execute();
 
         _theWithdraw.Execute();
         if (_theWithdraw.Succeeded)
@@ -75,17 +48,9 @@ public class TransferTransaction
         }
     }
 
-    public void Rollback()
+    public override void Rollback()
     {
-        if (!_executed)
-        {
-            throw new Exception("Cannot rollback this transaction. It has not been executed.");
-        }
-
-        if (_reversed)
-        {
-            throw new Exception("Cannot rollback this transaction. It has already been reversed.");
-        }
+        base.Rollback();
 
         if (_theWithdraw.Succeeded)
         {
@@ -103,7 +68,7 @@ public class TransferTransaction
         }
     }
 
-    public void Print()
+    public override void Print()
     {
         if (_theWithdraw.Succeeded && _theDeposit.Succeeded)
         {

@@ -1,62 +1,27 @@
-public class DepositTransaction
+public class DepositTransaction : Transaction
 {
-    private Account _account;
-    private decimal _amount;
-    private bool _executed = false;
+    private Account _account;  
     private bool _succeeded = false;
-    private bool _reversed = false;
 
-    public bool Succeeded
+    public override bool Succeeded
     {
-        get
-        {
-            return _succeeded;
-        }
+        get {return _succeeded;}
     }
     
-    public bool Executed 
-    {
-        get
-        {
-            return _executed;
-        }
-    }
-    
-    public bool Reversed
-    {
-        get
-        {
-            return _reversed;
-        }
-    }
-
-    public DepositTransaction(Account account, decimal amount) 
+    public DepositTransaction(Account account, decimal amount) : base(amount)
     {
         _account = account;
-        _amount = amount;
     }
 
-    public void Execute()
+    public override void Execute()
     {
-        if (_executed)
-        {
-            throw new Exception("Cannot execute this transaction as it has already been executed.");
-        }
-        _executed = true;
+        base.Execute();
         _succeeded = _account.Deposit(_amount);
     }
 
-    public void Rollback()
+    public override void Rollback()
     {
-        if (!_executed)
-        {
-            throw new Exception("Cannot reverse a transaction that has not already been executed");
-        }
-
-        if (_reversed)
-        {
-            throw new Exception("Cannot reverse a transaction that has already been reversed");
-        }
+        base.Rollback();
 
         if (_account.Withdraw(_amount))
         {
@@ -72,7 +37,7 @@ public class DepositTransaction
         }
     }
 
-    public void Print()
+    public override void Print()
     {
         if (_succeeded)
         {

@@ -1,5 +1,3 @@
-using System;
-
 public class Account
 {
     private string _name;
