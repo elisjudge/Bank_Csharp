@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace version_4_0
+namespace version_5_0
 {
     public class Program 
     {
@@ -30,6 +30,9 @@ namespace version_4_0
                     case MenuOption.Print:
                         DoPrint(bank);
                         break;
+                    case MenuOption.Print_Transactions:
+                        bank.PrintTransactionHistory();
+                        break;
                     case MenuOption.Quit:
                         Console.WriteLine("Quit");
                         break;
@@ -46,11 +49,12 @@ namespace version_4_0
             3. Withdraw Funds,
             4. Transfer Funds,
             5. Show Account Balance,
-            6. Quit");
+            6. Show List of Transactions,
+            7. Quit");
 
             do
             {
-                Console.Write("Choose an option [1-6]:");
+                Console.Write("Choose an option [1-7]:");
                 try
                 {
                     option = Convert.ToInt32(Console.ReadLine());
@@ -61,11 +65,11 @@ namespace version_4_0
                     Console.WriteLine("Please make sure that you select a valid option");
                     option = -1;
                 }
-                if (option < 1 || option > 6)
+                if (option < 1 || option > 7)
                 {
                     Console.WriteLine("Please select a valid number between 1 and 6.");
                 }
-            } while (option < 1 || option > 6);
+            } while (option < 1 || option > 7);
 
             return (MenuOption)(option - 1);
         }
@@ -237,6 +241,7 @@ namespace version_4_0
             Withdraw,
             Transfer,
             Print,
+            Print_Transactions,
             Quit,
         }
     }   
